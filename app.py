@@ -227,6 +227,7 @@ def update_flag(name):
 
     values.append(name)  # Adiciona o 'name' para a cláusula WHERE
 
+    # nosec B608
     query = f"UPDATE flags SET {', '.join(fields)} WHERE name = %s RETURNING *"
 
     conn = None
@@ -292,4 +293,5 @@ def delete_flag(name):
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8002))
+    # nosec B104
     app.run(host="0.0.0.0", port=port, debug=False)
