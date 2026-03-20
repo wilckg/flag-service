@@ -201,6 +201,8 @@ def update_flag(name):
     if not data:
         return jsonify({"error": "Corpo da requisição obrigatório"}), 400
 
+    allowed_fields = {"description", "is_enabled"}
+
     fields = []
     values = []
 
@@ -213,22 +215,14 @@ def update_flag(name):
         values.append(data["is_enabled"])
 
     if not fields:
-        return (
-            jsonify(
-                {
-                    "error": (
-                        "Pelo menos um campo ('description', 'is_enabled') "
-                        "é obrigatório"
-                    )
-                }
-            ),
-            400,
-        )
+        return jsonify({"error": "Pelo menos um campo válido é obrigatório"}), 400
 
-    values.append(name)  # Adiciona o 'name' para a cláusula WHERE
+    for field in fields:
+        column = field.split(" ")[0]
+        if column not in allowed_fields:
+            return jsonify({"error": "Campo inválido"}), 400
 
-    # nosec B608
-    query = f"UPDATE flags SET {', '.join(fields)} WHERE name = %s RETURNING *"
+    query = f"UPDATE flags SET {', '.join(fields)} WHERE name = %s RETURNING *"  # nosec B608
 
     conn = None
     cur = None
